@@ -1,0 +1,63 @@
+#! /bin/sh
+
+
+#! /bin/sh
+
+
+EXEC="sh"
+
+DOCKER_COMPOSE_CMD="docker-compose"
+which "$DOCKER_COMPOSE_CMD" >/dev/null 2>&1
+[ ! $? -eq 0 ] && DOCKER_COMPOSE_CMD="docker compose"
+echo $DOCKER_COMPOSE_CMD
+
+action_down() {
+    echo "${DOCKER_COMPOSE_CMD} down"
+    $DOCKER_COMPOSE_CMD down
+}
+
+
+action_exec() {
+    [ -n "$1" ] && NAME="$1"
+    [ -n "$2" ] && EXEC="$2"
+    docker exec -ti "$NAME" "$EXEC"
+}
+
+action_up() {
+    chmod 777 ./grafana/data
+    $DOCKER_COMPOSE_CMD down
+    $DOCKER_COMPOSE_CMD up -d
+}
+
+action_pack() {
+    [ -n "$1" ] && NAME="$1"
+    docker save $NAME | gzip > $NAME.gz
+}
+
+action_help() {
+    echo " install mgm gateway scripts "
+    echo ""
+    echo " Option：    "
+    echo " up        Execute docker compose up -d"
+    echo " down      Execute docker compose down"
+    echo " init      Init mgm gateway system env and dir path"
+ 
+}
+
+# Set the default action to "build" if none is provided
+action=$1
+shift
+
+# Function to check if a function exists
+function_exists() {
+    type "$1" >/dev/null 2>&1
+}
+
+# Call the action function if it exists, otherwise show an error
+if function_exists "action_$action"; then
+    "action_$action" "$@"
+else
+    echo "Error: Unknown action: '$action'"
+    echo "Usage: $0 <action> <args>"
+    exit 1
+fi
