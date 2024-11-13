@@ -1,0 +1,23 @@
+services:
+  prometheus-server:
+    image: prom/prometheus
+    container_name: prometheus-server
+    restart: always
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 9090:9090	 
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: always
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      - TZ=Asia/Shanghai
+      - GF_SECURITY_ADMIN_PASSWORD=zeronews@2024
+    ports:
+      - 3001:3000
